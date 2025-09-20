@@ -1,103 +1,127 @@
-🎵 Discover Weekly Saver
+# 🎶 Spotify Discover Weekly Saver
 
-A Flask web application that automatically saves tracks from your Spotify Discover Weekly playlist into a custom playlist called Saved Weekly, ensuring you never lose your favorite weekly recommendations.
+This Flask + Spotipy application allows you to **automatically save songs** from your weekly *Discover Weekly* playlist into a permanent *Saved Weekly* playlist.  
+It ensures that you never lose track of songs after your Discover Weekly refreshes.
 
-🚀 Features
+---
 
-Spotify Login: Secure OAuth 2.0 authentication using the Spotify API.
+## 📋 Features
+- **Login with Spotify** using OAuth2.
+- Automatically creates a **Saved Weekly** playlist (if it doesn't exist).
+- Copies all tracks from your **Discover Weekly** playlist into **Saved Weekly**.
 
-Discover Weekly Backup: Automatically copies all tracks from your Discover Weekly playlist to a persistent Saved Weekly playlist.
+---
 
-Auto Refresh Tokens: Access tokens are refreshed seamlessly to maintain authorization.
+## ⚙️ Prerequisites
+- Python 3.8 or higher
+- A [Spotify Developer](https://developer.spotify.com/dashboard/) account
+- Flask & Spotipy Python packages
 
-Playlist Creation: If the Saved Weekly playlist doesn’t exist, it will be created automatically.
+---
 
-🛠️ Tech Stack
+## 🛠 Installation
 
-Backend Framework: Flask
+1. **Clone this repository**
+   ```bash
+   git clone https://github.com/yourusername/spotify-discover-weekly-saver.git
+   cd spotify-discover-weekly-saver
+   ```
 
-Spotify API Client: Spotipy
+2. **Create and activate a virtual environment** (recommended)
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate       # macOS/Linux
+   venv\Scripts\activate          # Windows
+   ```
 
-Authorization: Spotify OAuth
+3. **Install dependencies**
+   ```bash
+   pip install flask spotipy
+   ```
 
-📂 Project Structure
+4. **Set up your Spotify app**
+   - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/).
+   - Create a new app and note down:
+     - **Client ID**
+     - **Client Secret**
+   - Set a **Redirect URI** to:
+     ```
+     http://localhost:5000/redirect
+     ```
+
+---
+
+## ⚡ Configuration
+
+Create a `.env` file in the project root or set environment variables:
+
+```env
+SECRET_KEY=your_flask_secret
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+```
+
+Then update the code in `create_spotify_oauth()` to load these from the environment,  
+or replace `"YOUR_CLIENT_ID"` and `"YOUR_CLIENT_SECRET"` directly in the script.
+
+---
+
+## ▶️ Usage
+
+1. **Run the Flask app**
+   ```bash
+   python app.py
+   ```
+   The app will start on [http://localhost:5000](http://localhost:5000)
+
+2. **Login with Spotify**
+   - Navigate to the root URL.
+   - You’ll be redirected to Spotify’s login and authorization page.
+
+3. **Save your Discover Weekly**
+   - After authorization, the app creates a playlist called **Saved Weekly** (if it doesn’t already exist).
+   - All tracks from your current Discover Weekly are added to Saved Weekly.
+
+---
+
+## 📂 Project Structure
+```
 .
-├── app.py                # Main Flask application
-└── README.md              # Project documentation
+├─ app.py                 # Main Flask application
+├─ requirements.txt        # Dependencies (optional)
+└─ README.md               # This file
+```
 
-⚡ Setup Instructions
-1️⃣ Prerequisites
+---
 
-Python 3.8+
+## 🔑 Key Routes
+| Route | Description |
+|------|-------------|
+| `/` | Redirects to Spotify login authorization |
+| `/redirect` | Handles Spotify OAuth callback and token exchange |
+| `/saveDiscoverWeekly` | Saves all Discover Weekly songs to Saved Weekly |
 
-A Spotify Developer Account
+---
 
-Your Spotify Client ID and Client Secret
+## 🧩 Code Overview
 
-2️⃣ Clone the Repository
-git clone https://github.com/your-username/discover-weekly-saver.git
-cd discover-weekly-saver
+Below is a simplified explanation of important functions:
 
-3️⃣ Install Dependencies
-pip install flask spotipy
+- **`login()`**  
+  Generates an authorization URL and redirects the user to Spotify for login.
 
-4️⃣ Configure Environment Variables
+- **`redirect_path()`**  
+  Handles Spotify’s callback, exchanges the code for an access/refresh token, and stores it in a Flask session.
 
-Create a .env file or edit the app.py directly with your credentials:
+- **`save_discover_weekly()`**  
+  Finds your Discover Weekly playlist and copies all its tracks into Saved Weekly.
 
-SPOTIPY_CLIENT_ID="YOUR_CLIENT_ID"
-SPOTIPY_CLIENT_SECRET="YOUR_CLIENT_SECRET"
-SECRET_KEY="YOUR_SECRET_KEY"
+- **`get_token()`**  
+  Checks if the access token is expired and refreshes it if needed.
 
+---
 
-⚠️ Replace YOUR_CLIENT_ID and YOUR_CLIENT_SECRET with the values from your Spotify Dashboard
-.
-⚠️ Replace SECRET_KEY with a secure random string for Flask session handling.
-
-5️⃣ Run the App
-python app.py
-
-
-The server will start at:
-
-http://127.0.0.1:5000/
-
-🌐 Usage
-
-Go to http://127.0.0.1:5000/
-
-Log in with your Spotify account.
-
-The app will:
-
-Retrieve your Discover Weekly playlist.
-
-Create a Saved Weekly playlist if it doesn’t exist.
-
-Add all current Discover Weekly songs to it.
-
-⚠️ Important Notes
-
-Redirect URI: Ensure your Spotify App Dashboard includes
-
-http://127.0.0.1:5000/redirect
-
-
-as a valid redirect URI.
-
-Token Expiration: The app automatically refreshes expired tokens using the stored refresh token.
-
-🧩 Example Code Snippet
-def create_spotify_oauth():
-    return SpotifyOAuth(
-        client_id="YOUR_CLIENT_ID",
-        client_secret="YOUR_CLIENT_SECRET",
-        redirect_uri=url_for('redirect_path', _external=True),
-        scope="user-library-read playlist-modify-public playlist-modify-private"
-    )
-
-🔒 Security
-
-Never commit your Client Secret or SECRET_KEY to a public repository.
-
-Use environment variables (os.getenv) instead of hardcoding credentials in production.
+## 💡 Tips
+- The Flask `SECRET_KEY` is required for session management.  
+- Make sure the redirect URI in your Spotify app matches exactly what’s in the code.
+- You can deploy this on services like **Heroku**, **Render**, or **AWS** with minor adjustments.
